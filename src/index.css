@@ -1,0 +1,278 @@
+/* Canvas UI only: scan src/, not the board (frames have their own CSS). */
+@import "tailwindcss" source(".");
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --color-selection: var(--selection);
+    --color-comment: var(--comment);
+    --color-comment-ink: var(--comment-ink);
+    --color-canvas: var(--canvas);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.45rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+    --selection: oklch(0.58 0.2 258);
+    /* Fills that carry white text (pins, badges), and violet text on the page. */
+    --comment: oklch(0.56 0.22 293);
+    --comment-ink: oklch(0.52 0.22 293);
+    --canvas: oklch(0.965 0 0);
+    --canvas-dot: oklch(0.85 0 0);
+    --frame-edge: oklch(0 0 0 / 0.12);
+    --group-bg: oklch(0.92 0 0 / 0.35);
+    --group-border: oklch(0.72 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+    --selection: oklch(0.68 0.17 258);
+    --comment: oklch(0.57 0.21 293);
+    --comment-ink: oklch(0.78 0.13 293);
+    --canvas: oklch(0.17 0 0);
+    --canvas-dot: oklch(0.3 0 0);
+    --frame-edge: oklch(1 0 0 / 0.1);
+    --group-bg: oklch(1 0 0 / 0.025);
+    --group-border: oklch(0.42 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+/*
+ * Canvas. The world layer is scaled by the camera; it exposes the zoom as --z so
+ * labels and outlines can stay a constant size on screen.
+ */
+.fw-viewport {
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px);
+}
+
+/* A label above a box, counter-scaled to constant screen size and as wide as the box. */
+.fw-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--w) * var(--z) * 1px);
+  transform-origin: 0 0;
+  transform: scale(calc(1 / var(--z))) translateY(-100%);
+  white-space: nowrap;
+  overflow: hidden;
+  container-type: inline-size;
+}
+/* Narrow labels (small frames, low zoom) drop the details first. */
+@container (max-width: 260px) {
+  .fw-label-id {
+    display: none;
+  }
+}
+@container (max-width: 160px) {
+  .fw-label-size {
+    display: none;
+  }
+}
+/* Below this, the action buttons would push the title out: keep only Zoom to frame. */
+@container (max-width: 200px) {
+  .fw-label-extra {
+    display: none;
+  }
+}
+
+.fw-frame {
+  background: white;
+  box-shadow:
+    0 0 0 calc(1px / var(--z)) var(--frame-edge),
+    0 calc(2px / var(--z)) calc(14px / var(--z)) oklch(0 0 0 / 0.08);
+}
+.fw-frame:hover {
+  outline: calc(1.5px / var(--z)) solid color-mix(in oklch, var(--selection) 60%, transparent);
+}
+.fw-frame[data-selected] {
+  outline: calc(2px / var(--z)) solid var(--selection);
+}
+.fw-frame[data-error]:not([data-selected]) {
+  outline: calc(1.5px / var(--z)) solid var(--destructive);
+}
+/* A reference chip to this frame is hovered. */
+.fw-frame[data-highlight] {
+  outline: calc(2px / var(--z)) solid var(--comment);
+  outline-offset: calc(3px / var(--z));
+}
+
+/*
+ * Comment pins, counter-scaled like labels. A group's bottom-left corner (the
+ * pin's point) sits at its anchor: beside a frame's top-right corner, or just
+ * inside an element's top-right corner.
+ */
+.fw-pins {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  gap: 3px;
+  transform-origin: 0 0;
+  transform: scale(calc(1 / var(--z))) translate(3px, calc(-100% - 2px));
+  pointer-events: none;
+}
+.fw-pins-inset {
+  transform: scale(calc(1 / var(--z))) translate(-9px, calc(-100% + 9px));
+}
+.fw-pin {
+  pointer-events: auto;
+  display: inline-flex;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 10px 10px 10px 3px;
+  background: var(--comment);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* A white rim reads on any frame content and on the canvas, in both themes. */
+  box-shadow:
+    0 0 0 1.5px white,
+    0 2px 6px oklch(0 0 0 / 0.3);
+  cursor: pointer;
+  transform-origin: 0 100%;
+  transition: transform 120ms ease-out;
+}
+.fw-pin:hover {
+  transform: scale(1.12);
+}
+.fw-pin[data-focused] {
+  box-shadow:
+    0 0 0 1.5px white,
+    0 0 0 4.5px color-mix(in oklch, var(--comment) 50%, transparent),
+    0 2px 6px oklch(0 0 0 / 0.25);
+}
+.fw-pin:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.fw-group {
+  background: var(--group-bg);
+  border: calc(1px / var(--z)) dashed var(--group-border);
+  border-radius: 16px;
+}
+.fw-group[data-selected] {
+  border-style: solid;
+  border-color: var(--selection);
+  box-shadow: 0 0 0 calc(1px / var(--z)) var(--selection);
+}
+

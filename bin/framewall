@@ -1,0 +1,149 @@
+#!/usr/bin/env node
+// framewall CLI. Reads what the canvas saved in BOARD_DIR/.framewall/ (the
+// canvas doesn't need to be open):
+//   framewall selection   the picked elements, as reference tags
+//   framewall comments    the comment buffer, as the pseudo-XML that Copy all copies
+// Loads the shared formatters (shared/*.ts) with Node's built-in type stripping
+// (Node 22.18+ / 23.6+).
+
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+
+import { COMMENTS_FILE, cleanComments, formatComments } from "../shared/comments.ts"
+import { formatSelection } from "../shared/refs.ts"
+import { SELECTION_DIR, SELECTION_FILE } from "../shared/selection.ts"
+
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+
+const HELP = `Usage: framewall <command> [options]
+
+Commands:
+  selection        Print the elements selected on the canvas as reference tags
+  comments         Print the comment buffer as <framewall> pseudo-XML (what Copy all copies)
+  help             Show this help
+
+Options:
+  --json           Print the raw file instead
+  --clear          (comments) Empty the comment buffer
+  --board <dir>    Board folder (default: $BOARD_DIR, else example-board in the repo)
+`
+
+function parseArgs(argv) {
+  const opts = { command: null, json: false, clear: false, board: null }
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+    if (arg === "--json") opts.json = true
+    else if (arg === "--clear") opts.clear = true
+    else if (arg === "--board") opts.board = argv[++i] ?? null
+    else if (arg.startsWith("--board=")) opts.board = arg.slice("--board=".length)
+    else if (arg === "-h" || arg === "--help") opts.command = "help"
+    else if (!opts.command) opts.command = arg
+    else fail(`unexpected argument: ${arg}`)
+  }
+  return opts
+}
+
+function fail(message) {
+  process.stderr.write(`framewall: ${message}\n\n${HELP}`)
+  process.exit(2)
+}
+
+function boardDir(opts) {
+  if (opts.board) return path.resolve(opts.board)
+  // Same default as vite.config.ts: BOARD_DIR relative to the repo.
+  return path.resolve(repo, process.env.BOARD_DIR ?? "example-board")
+}
+
+/** Does the JSX at `loc` still start where the selection says? (The file may have changed since.) */
+function locationMoved(board, loc) {
+  if (!loc) return false
+  try {
+    const line = readFileSync(path.join(board, loc.file), "utf8").split("\n")[loc.line - 1]
+    return line === undefined || line[loc.col - 1] !== "<"
+  } catch {
+    return true
+  }
+}
+
+/** The parsed JSON file in BOARD_DIR/.framewall/, else `fallback`. */
+function readData(file, fallback) {
+  if (!existsSync(file)) return fallback
+  try {
+    return JSON.parse(readFileSync(file, "utf8"))
+  } catch (err) {
+    process.stderr.write(`framewall: couldn't read ${file}: ${err.message}\n`)
+    process.exit(1)
+  }
+}
+
+function selection(opts) {
+  const board = boardDir(opts)
+  const file = path.join(board, SELECTION_DIR, SELECTION_FILE)
+  if (!existsSync(board)) fail(`board folder not found: ${board}`)
+  const data = readData(file, { version: 1, board, updatedAt: null, items: [] })
+  const items = Array.isArray(data.items) ? data.items : []
+  if (opts.json) {
+    process.stdout.write(JSON.stringify(data, null, 2) + "\n")
+    return
+  }
+  if (!items.length) {
+    process.stderr.write("No elements selected. In the canvas, press S (select mode) and click an element.\n")
+    return
+  }
+  process.stdout.write(formatSelection(items) + "\n")
+  const stale = items.filter((item) => item.stale).length
+  if (stale) {
+    process.stderr.write(`\nnote: ${stale === 1 ? "1 element was" : `${stale} elements were`} not found after the last edit (stale).\n`)
+  }
+  const moved = items.filter((item) => locationMoved(board, item.usedAt) || locationMoved(board, item.definedIn))
+  if (moved.length) {
+    process.stderr.write(
+      `\nnote: ${moved.length === 1 ? "1 location" : `${moved.length} locations`} no longer point at a JSX tag; ` +
+        "the file changed since the selection was saved (open the canvas to refresh it).\n"
+    )
+  }
+}
+
+function comments(opts) {
+  const board = boardDir(opts)
+  const file = path.join(board, SELECTION_DIR, COMMENTS_FILE)
+  if (!existsSync(board)) fail(`board folder not found: ${board}`)
+  const data = readData(file, { version: 1, board, updatedAt: null, comments: [] })
+  const list = cleanComments(data.comments)
+  if (opts.clear) {
+    // Written the way the dev server writes it; open canvases pick the change up live.
+    const empty = { version: 1, board, updatedAt: new Date().toISOString(), comments: [] }
+    mkdirSync(path.dirname(file), { recursive: true })
+    const tmp = `${file}.${process.pid}.tmp`
+    writeFileSync(tmp, JSON.stringify(empty, null, 2) + "\n")
+    renameSync(tmp, file)
+    process.stderr.write(`Cleared ${list.length === 1 ? "1 comment" : `${list.length} comments`}.\n`)
+    return
+  }
+  if (opts.json) {
+    process.stdout.write(JSON.stringify(data, null, 2) + "\n")
+    return
+  }
+  if (!list.length) {
+    process.stderr.write("No comments. In the canvas, select a frame or an element and press C.\n")
+    return
+  }
+  process.stdout.write(formatComments(board, list) + "\n")
+}
+
+const opts = parseArgs(process.argv.slice(2))
+if (opts.clear && opts.command !== "comments") fail("--clear only applies to comments")
+switch (opts.command ?? "help") {
+  case "selection":
+    selection(opts)
+    break
+  case "comments":
+    comments(opts)
+    break
+  case "help":
+    process.stdout.write(HELP)
+    break
+  default:
+    fail(`unknown command: ${opts.command}`)
+}

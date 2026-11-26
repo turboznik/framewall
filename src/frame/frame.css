@@ -1,0 +1,32 @@
+/*
+ * CSS for frames only (the canvas has its own, in src/index.css).
+ * Tailwind scans the board folder (the marker below is replaced with
+ * `@source "<BOARD_DIR>"` by the framewall plugin) and this runtime folder.
+ */
+@import "tailwindcss" source(none);
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@source "./";
+/* framewall:board-source */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    background: white;
+    color: var(--color-zinc-950);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
